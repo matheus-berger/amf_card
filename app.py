@@ -7,7 +7,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Criando o Aplicativo Flask
+# Criando a aplicação
 app = Flask(__name__)
 
 # Criando a estrutura do banco de dados
@@ -136,6 +136,49 @@ class Cadastro_Carteira:
         return True
 
 
+# Classe responsavel pelo login do usuario
+class Login_Usuario:
+    def __init__(self, ra, senha):
+        self.ra = ra
+        self.senha = senha
+
+    def validar_usuario(self):
+        """
+        Valida se o RA existe no banco de dados.
+        Retorna o objeto do usuário se ele for encontrado ou uma mensagem de erro.
+        """
+        usuario = Tabela_Aluno.query.filter_by(ra=self.ra).first()
+        if not usuario:
+            return "RA não encontrado."
+        return usuario
+
+    def validar_senha(self, senha_hash):
+        """
+        Valida se a senha fornecida corresponde ao hash armazenado.
+        Retorna True se a senha estiver correta, False caso contrário.
+        """
+        return check_password_hash(senha_hash, self.senha)
+
+    def autenticar(self):
+        """
+        Realiza a autenticação do usuário.
+        - Valida o RA.
+        - Valida a senha.
+        - Retorna mensagens de sucesso ou erro.
+        """
+        # Valida o usuário (RA)
+        usuario = self.validar_usuario()
+        if isinstance(usuario, str):  # Caso seja uma mensagem de erro
+            return usuario
+
+        # Valida a senha
+        if not self.validar_senha(usuario.senha_hash):
+            return "Senha incorreta."
+
+        # Login bem-sucedido
+        return f"Login bem-sucedido! Bem-vindo, {usuario.nome}."
+
+
 # Testando e rodando
 if __name__ == "__main__":
     with app.app_context():
@@ -160,3 +203,18 @@ if __name__ == "__main__":
         )
         resultado_repetido = cadastro_repetido.cadastrar_usuario()
         print(resultado_repetido)
+    
+        # Teste com dados corretos
+        login = Login_Usuario(ra="123456", senha="hashed_password")
+        resultado = login.autenticar()
+        print(resultado)  # Ex.: "Login bem-sucedido! Bem-vindo, João Silva."
+
+        # Teste com RA inexistente
+        login = Login_Usuario(ra="654321", senha="minhasenha")
+        resultado = login.autenticar()
+        print(resultado)  # Ex.: "RA não encontrado."
+
+        # Teste com senha incorreta
+        login = Login_Usuario(ra="123456", senha="senhaerrada")
+        resultado = login.autenticar()
+        print(resultado)  # Ex.: "Senha incorreta."
