@@ -21,6 +21,9 @@ app.secret_key = secrets.token_hex(16)  # Gera uma chave hexadecimal de 32 carac
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///amf_card.db'
 db = SQLAlchemy(app)
 
+# Comandos para a migração de banco de dados
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
 
 # Classe responsável por criar a tabela Aluno
 class Tabela_Aluno(db.Model):
@@ -43,6 +46,17 @@ class Tabela_Carteira(db.Model):
     data_expiracao = db.Column(db.Date, default=lambda: datetime.now() + timedelta(days=4*365))
 
     dono_carteira = db.relationship('Tabela_Aluno', backref='carteira')
+
+
+# Classe responsavel pela criação da carteira de atividades
+class Tabela_Atividades(db.Model):
+    __tablename__ = 'atividades'
+    id = db.Column(db.Integer, primary_key=True)
+    codigo_carteira = db.Column(db.String(15), db.ForeignKey('carteira.codigo'), nullable=False)
+    descricao = db.Column(db.String(255), nullable=False)
+    data_atividade = db.Column(db.DateTime, default=datetime.now)
+
+    carteira = db.relationship('Tabela_Carteira', backref='atividades')
 
 
 # Classe responsavel pelo cadastro do usuario no banco de dados
@@ -189,8 +203,31 @@ class Login_Usuario:
         return f"Login bem-sucedido! Bem-vindo, {usuario.nome}."
 
 
+# Classe responsavel pelo registro de atividades da carteira
+class Cadastro_Atividade:
+    def __init__(self, codigo_carteira, descricao):
+        self.codigo_carteira = codigo_carteira
+        self.descricao = descricao
+
+    def cadastrar(self):
+        try:
+            # Criar uma nova instância da tabela de atividades
+            nova_atividade = Tabela_Atividades(
+                codigo_carteira=self.codigo_carteira,
+                descricao=self.descricao
+            )
+
+            # Adicionar ao banco de dados
+            db.session.add(nova_atividade)
+            db.session.commit()
+            
+            return "Atividade cadastrada com sucesso!"
+        except Exception as e:
+            db.session.rollback()  # Desfazer alterações em caso de erro
+            return f"Erro ao cadastrar a atividade: {str(e)}"
+
 # Rodando o aplicativo
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Cria o banco e tabelas, se ainda não existirem
-    app.run(debug=True)  # Inicia o servidor Flask
+    app.run(debug=False)  # Inicia o servidor Flask
