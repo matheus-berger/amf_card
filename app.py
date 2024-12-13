@@ -10,6 +10,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Criando a aplicação
 app = Flask(__name__)
 
+# Importando o conteudo de routes
+import routes
+
 # Criando a estrutura do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///amf_card.db'
 db = SQLAlchemy(app)
@@ -179,11 +182,13 @@ class Login_Usuario:
         return f"Login bem-sucedido! Bem-vindo, {usuario.nome}."
 
 
-# Testando e rodando
+# Rodando o aplicativo
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
+        db.create_all()  # Cria o banco e tabelas, se ainda não existirem
+    app.run(debug=True)  # Inicia o servidor Flask
 
+    """
         # Criar um cadastro de usuário
         cadastro = Cadastro_Usuario(
             nome="João Silva",
@@ -218,3 +223,4 @@ if __name__ == "__main__":
         login = Login_Usuario(ra="123456", senha="senhaerrada")
         resultado = login.autenticar()
         print(resultado)  # Ex.: "Senha incorreta."
+    """
