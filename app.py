@@ -13,6 +13,9 @@ app = Flask(__name__)
 # Importando o conteudo de routes
 import routes
 
+# Configurar a chave secreta para formulários
+app.config['SECRET_KEY'] = '77712144'
+
 # Criando a estrutura do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///amf_card.db'
 db = SQLAlchemy(app)
@@ -54,12 +57,12 @@ class Cadastro_Usuario:
         aluno_existente = Tabela_Aluno.query.filter_by(ra=self.ra).first()
         if aluno_existente:
             return f"O RA {self.ra} já está cadastrado."
-        return None
+        return True
 
     def cadastrar_usuario(self):
         # Validar RA
         mensagem = self.validar_ra()
-        if mensagem:
+        if mensagem is not True:
             return mensagem
         
         # Gerar o hash da senha
@@ -77,10 +80,11 @@ class Cadastro_Usuario:
 
         # Cadastrar a carteira
         cadastro_carteira = Cadastro_Carteira(self.ra)
-        if cadastro_carteira.cadastrar() is True:
-            return f"Usuário {self.nome} cadastrado com sucesso!"
+        cadastro_carteira_mensagem = cadastro_carteira.cadastrar()
+        if cadastro_carteira_mensagem is True:
+            return True
         else:
-            return "Erro ao cadastrar a carteira do usuário."
+            return cadastro_carteira_mensagem
 
 
 # Classe responsavel pelo cadastro da Carteira
@@ -88,38 +92,39 @@ class Cadastro_Carteira:
     def __init__(self, ra):
         self.ra = ra
 
+    # Verifica se o aluno existe no banco de dados
     def validar_aluno(self):
-        # Verifica se o aluno existe no banco de dados
         aluno = Tabela_Aluno.query.filter_by(ra=self.ra).first()
         if not aluno:
             return f"Aluno com RA {self.ra} não encontrado."
-        return aluno
-
+        return True
+    
+    # Verifica se o aluno já possui uma carteira
     def verificar_carteira_existente(self):
-        # Verifica se o aluno já possui uma carteira
         carteira_existente = Tabela_Carteira.query.filter_by(aluno=self.ra).first()
         if carteira_existente:
             return f"Carteira já cadastrada para o RA {self.ra}."
-        return None
-
+        return True
+    
+    # Gera um código único para a carteira
     def gerar_codigo_unico(self):
-        # Gera um código único para a carteira
         while True:
             codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=15))
             # Verifica se o código já existe no banco
             if not Tabela_Carteira.query.filter_by(codigo=codigo).first():
                 return codigo
 
+    # Cadastro da carteira
     def cadastrar(self):
         # Valida o aluno
         aluno = self.validar_aluno()
-        if isinstance(aluno, str):
+        if aluno is not True:
             return aluno  # Retorna mensagem de erro
 
         # Verifica se já existe uma carteira cadastrada
-        mensagem = self.verificar_carteira_existente()
-        if mensagem:
-            return mensagem  # Retorna mensagem de erro
+        carteira_disponibilidade = self.verificar_carteira_existente()
+        if carteira_disponibilidade is not True:
+            return carteira_disponibilidade  # Retorna mensagem de erro
 
         # Gera o código da carteira
         codigo_carteira = self.gerar_codigo_unico()
@@ -136,6 +141,7 @@ class Cadastro_Carteira:
         db.session.add(nova_carteira)
         db.session.commit()
 
+        # Processo bem sucedido!
         return True
 
 
@@ -172,11 +178,11 @@ class Login_Usuario:
         # Valida o usuário (RA)
         usuario = self.validar_usuario()
         if isinstance(usuario, str):  # Caso seja uma mensagem de erro
-            return usuario
+            return "RA não cadastrado!"
 
         # Valida a senha
         if not self.validar_senha(usuario.senha_hash):
-            return "Senha incorreta."
+            return "Senha incorreta!"
 
         # Login bem-sucedido
         return f"Login bem-sucedido! Bem-vindo, {usuario.nome}."

@@ -10,6 +10,25 @@
     <div class="container text-center mt-5">
         <h1>Login</h1>
         <p>Página de Login</p>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="ra" class="form-label">RA:</label>
+                <input type="text" id="ra" name="ra" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="senha" class="form-label">Senha:</label>
+                <input type="password" id="senha" name="senha" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+        
+        <!-- Mensagem de erro -->
+        {% if mensagem %}
+            <p style="color: red;">{{ mensagem }}</p>
+        {% endif %}
+        
         <div class="mt-4">
             <a href="{{ url_for('index') }}" class="btn btn-secondary">Voltar</a>
         </div>
