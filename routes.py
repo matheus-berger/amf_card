@@ -28,6 +28,8 @@ def login():
         if mensagem == "RA não cadastrado!" or mensagem == "Senha incorreta!":
             return render_template('login.html', mensagem=mensagem)
         else:
+            # Usuário autenticado com sucesso, armazena o RA na sessão
+            session['usuario_logado'] = ra
             return redirect(url_for('carteira'))
     
     return render_template('login.html')
@@ -66,12 +68,39 @@ def cadastro():
 # Rota de acesso a carteira
 @app.route('/carteira')
 def carteira():
-    return render_template('carteira.html')
+    from app import Tabela_Aluno, Tabela_Carteira
+
+    if 'usuario_logado' not in session:
+        # Redireciona para o login se não estiver logado
+        return redirect(url_for('login'))
+    
+    # Busca o RA do usuário logado na sessão
+    ra_usuario = session['usuario_logado']
+    
+    # Busca os dados do aluno no banco de dados
+    aluno = Tabela_Aluno.query.filter_by(ra=ra_usuario).first()
+    carteira = Tabela_Carteira.query.filter_by(aluno=ra_usuario).first()
+    
+    if not aluno or not carteira:
+        return "Erro: Aluno ou carteira não encontrados", 404
+
+    # Dados a serem enviados para o template
+    dados_carteira = {
+        "nome": aluno.nome,
+        "foto": aluno.foto,  # Certifique-se de que a foto está salva como URL ou caminho acessível
+        "status": "Ativo" if carteira.status == 1 else "Inativo",
+        "vencimento": carteira.data_expiracao.strftime('%d/%m/%Y'),
+        "tipo": carteira.tipo_cartao,
+        "codigo_qr": carteira.codigo  # O valor que será usado no QR Code
+    }
+
+    return render_template('carteira.html', dados=dados_carteira)
 
 
 # Rota de LogOff
 @app.route('/sair')
 def sair():
+    session.pop('usuario_logado', None)
     return redirect(url_for('index'))
 
 

@@ -1,5 +1,6 @@
 # Importando as bibliotecas necessarias
 import random
+import secrets
 import string
 import uuid
 from datetime import datetime, timedelta
@@ -13,8 +14,8 @@ app = Flask(__name__)
 # Importando o conteudo de routes
 import routes
 
-# Configurar a chave secreta para formulários
-app.config['SECRET_KEY'] = '77712144'
+# Configurar a chave secreta
+app.secret_key = secrets.token_hex(16)  # Gera uma chave hexadecimal de 32 caracteres
 
 # Criando a estrutura do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///amf_card.db'
@@ -193,40 +194,3 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Cria o banco e tabelas, se ainda não existirem
     app.run(debug=True)  # Inicia o servidor Flask
-
-    """
-        # Criar um cadastro de usuário
-        cadastro = Cadastro_Usuario(
-            nome="João Silva",
-            email="joao.silva@email.com",
-            ra="123456",
-            senha="hashed_password"
-        )
-        resultado = cadastro.cadastrar_usuario()
-        print(resultado)
-
-        # Tentar cadastrar o mesmo RA novamente
-        cadastro_repetido = Cadastro_Usuario(
-            nome="Maria Oliveira",
-            email="maria.oliveira@email.com",
-            ra="123456",
-            senha="hashed_password2"
-        )
-        resultado_repetido = cadastro_repetido.cadastrar_usuario()
-        print(resultado_repetido)
-    
-        # Teste com dados corretos
-        login = Login_Usuario(ra="123456", senha="hashed_password")
-        resultado = login.autenticar()
-        print(resultado)  # Ex.: "Login bem-sucedido! Bem-vindo, João Silva."
-
-        # Teste com RA inexistente
-        login = Login_Usuario(ra="654321", senha="minhasenha")
-        resultado = login.autenticar()
-        print(resultado)  # Ex.: "RA não encontrado."
-
-        # Teste com senha incorreta
-        login = Login_Usuario(ra="123456", senha="senhaerrada")
-        resultado = login.autenticar()
-        print(resultado)  # Ex.: "Senha incorreta."
-    """
