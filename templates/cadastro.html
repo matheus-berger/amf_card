@@ -1,43 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - AMFcard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - AMFcard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f0f0f0; /* Light gray background */
+    }
+    .cadastro-form {
+      max-width: 400px;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #fff; /* White form background */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+  </style>
 </head>
 <body>
-    <div class="container text-center mt-5">
-        <h1>Cadastro</h1>
-        <p>Preencha os campos para se cadastrar:</p>
-        <form method="POST">
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome:</label>
-                <input type="text" id="nome" name="nome" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" id="email" name="email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="ra" class="form-label">RA:</label>
-                <input type="text" id="ra" name="ra" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="senha" class="form-label">Senha:</label>
-                <input type="password" id="senha" name="senha" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Cadastrar</button>
-        </form>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-sm-12">
+        <div class="cadastro-form">
+          <h1>Cadastro - AMFcard</h1>
+          <p>Crie sua conta AMFcard</p>
 
-        <!-- Mostrar mensagem de erro ou sucesso -->
-        {% if mensagem %}
+          <form method="POST">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome completo:</label>
+              <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Endereço de email:</label>
+              <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="ra" class="form-label">RA:</label>
+              <input type="text" id="ra" name="ra" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="senha" class="form-label">Senha:</label>
+              <input type="password" id="senha" name="senha" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Cadastrar</button>
+          </form>
+
+          {% if mensagem %}
             <p style="color: red;">{{ mensagem }}</p>
-        {% endif %}
+          {% endif %}
 
-        <div class="mt-4">
-            <a href="{{ url_for('login') }}" class="btn btn-secondary">Voltar para o Login</a>
+          <div class="mt-4 text-center">
+            <a href="{{ url_for('login') }}" class="btn btn-link">Voltar para o Login</a>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </body>
 </html>
