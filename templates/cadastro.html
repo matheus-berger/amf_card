@@ -9,9 +9,34 @@
 <body>
     <div class="container text-center mt-5">
         <h1>Cadastro</h1>
-        <p>Página de Cadastro</p>
+        <p>Preencha os campos para se cadastrar:</p>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome:</label>
+                <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="ra" class="form-label">RA:</label>
+                <input type="text" id="ra" name="ra" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="senha" class="form-label">Senha:</label>
+                <input type="password" id="senha" name="senha" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+        </form>
+
+        <!-- Mostrar mensagem de erro ou sucesso -->
+        {% if mensagem %}
+            <p style="color: red;">{{ mensagem }}</p>
+        {% endif %}
+
         <div class="mt-4">
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">Voltar</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Voltar para o Login</a>
         </div>
     </div>
 </body>
